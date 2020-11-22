@@ -55,6 +55,7 @@ internal var mFusedLocationClient: FusedLocationProviderClient? = null
 var currentAdminArea : String = ""
 lateinit var source : LatLng
 lateinit var destination:LatLng
+val initialcord:LatLng = LatLng(0.0, 0.0)
 
 
 class ChatListFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
@@ -387,15 +388,20 @@ class ChatListFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClick
         return p1
     }
     private fun getUrl(origin: LatLng, dest: LatLng): String? {
+
         val strorigin = "origin=" + origin.latitude.toString() + "," + origin.longitude
         val strdest = "destination=" + dest.latitude.toString() + "," + dest.longitude
         val sensor = "sensor=false"
+        val waypoint ="waypoints=33.974440,-118.256780"
         val mode = "mode=driving"
         val parameters = "$strorigin&$strdest&$sensor&$mode"
         val output = "json"
         val API_KEY: String = "AIzaSyDMNds7jkm7x5t6YixsjDTz-_iywFW9uqY"
-        return "https://maps.googleapis.com/maps/api/directions/$output?$parameters&key=$API_KEY"
-/*HERE
+        //
+        return "https://maps.googleapis.com/maps/api/directions/$output?$parameters&$waypoint&key=$API_KEY"
+        /*
+    //HERE
+
         val str_origin = "origin=" + origin.latitude.toString() + "%2C" + origin.longitude
         val str_dest = "destination=" + dest.latitude.toString() + "%2c" + dest.longitude
         val transportmode = "transportMode=car"
@@ -403,12 +409,12 @@ class ChatListFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClick
         val output = "return=polyline"
         val API_KEY: String = "-2tUjsluW_sYRxJK8MewPG0ug4AfXEUC7I1aPAd5RV4"
         return "https://router.hereapi.com/v8/routes?$parameters&$output&apikey=$API_KEY"
-
  */
+
+
     }
 
     override fun onMarkerClick(marker: Marker): Boolean {
-
             val data: String
             var inputStream: InputStream? = null
             var connection: HttpURLConnection? = null
@@ -429,21 +435,27 @@ class ChatListFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClick
             inputStream.close()
             connection.disconnect()
             val doc = JSONObject(data)
-            /*HERE APi
+          //HERE APi
+        /*
             val routes = doc.getJSONArray("routes")
             val sections = routes.getJSONObject(0).getJSONArray("sections")
             val polylin = sections.getJSONObject(0).getString("polyline")
+*/
 
-             */
-            //Directions API
-            val routes = doc.getJSONArray("routes")
-            val sections = routes.getJSONObject(0).getJSONObject("overview_polyline")
-            val polylin = sections.getString("points")
+      //Directions API
+      val routes = doc.getJSONArray("routes")
+      val sections = routes.getJSONObject(0).getJSONObject("overview_polyline")
+      val polylin = sections.getString("points")
+
+
 
 
             Timber.e(polylin.toString())
             val decoded: List<LatLng> = PolyUtil.decode(polylin)
-            Timber.e(decoded.toString())
+
+            for (e in decoded){
+                e.latitude + source.latitude
+            }
             var latLNG  = source
             for (e in decoded) {
                 Timber.e(e.toString())
